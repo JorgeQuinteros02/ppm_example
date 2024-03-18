@@ -1,11 +1,8 @@
-use crate::hittable::Hittable;
-use std::rc::Rc;
-use crate::ray::Ray;
-use crate::hittable::HitRecord;
-use crate::interval::*;
+use crate::rtweekend::*;
+use crate::hittable::*;
 
 
-type HittableObject = Rc<dyn Hittable>;
+
 
 #[derive(Default)]
 pub struct HittableList {

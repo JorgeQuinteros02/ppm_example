@@ -1,8 +1,5 @@
-use crate::hittable::Hittable;
-use crate::ray::Ray;
-use crate::hittable::HitRecord;
-use crate::vec3::Vec3;
-use crate::interval::*;
+use crate::rtweekend::*;
+use crate::hittable::*;
 
 pub struct Sphere {
     center: Vec3,

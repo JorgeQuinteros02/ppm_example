@@ -1,8 +1,6 @@
-use std::default;
-use crate::interval::*;
+use crate::rtweekend::*;
 
-use crate::vec3::Vec3;
-use crate::ray::Ray;
+
 
 #[derive(Default, Clone)]
 pub struct HitRecord {
@@ -11,6 +9,9 @@ pub struct HitRecord {
     pub t: f64,
     pub front_face: bool,
 }
+
+pub type HittableObject = Rc<dyn Hittable>;
+
 
 impl HitRecord {
     pub fn set_face_normal(&mut self, r: &Ray, outward_normal: Vec3) {

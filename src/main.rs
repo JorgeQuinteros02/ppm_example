@@ -1,36 +1,29 @@
 mod vec3;
 mod color;
 mod ray;
+mod hittable;
+mod hittable_list;
+mod sphere;
+mod rtweekend;
+mod interval;
 
 
 use indicatif::ProgressBar;
-use color::Color;
-use color::write_color;
-use vec3::Vec3;
-use ray::Ray;
-use vec3::unit_vector;
+use rtweekend::*;
+use hittable::*;
+use hittable_list::*;
+use std::rc::Rc;
+use crate::interval::*;
+use crate::color::*;
+use crate::ray::*;
+use crate::vec3::*;
+use crate::sphere::Sphere;
 
-fn hit_sphere(center: &Vec3, radius: f64, r: &Ray) -> f64{
-    let oc = r.origin() - *center;
-    let a = r.direction().norm2();
-    let half_b = oc.dot(r.direction());
-    let c = oc.norm2() - radius*radius;
-    let discriminant = half_b*half_b - a*c;
+fn ray_color<T:Hittable>(r: &Ray, world: &T ) -> Color {
+    let mut rec = HitRecord::default();
 
-
-    if discriminant < 0.0 {
-        return -1.0;
-    } else {
-        return (-half_b -discriminant.sqrt()) / a;
-    }
-}
-
-fn ray_color(r: &Ray) -> Color {
-    let t = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r);
-    
-    if t > 0.0 {
-        let N = unit_vector(r.at(t) - Vec3::new(0.0,0.0,-1.0));
-        return Color::new(N.x + 1.0, N.y + 1.0, N.z + 1.0)*0.5;
+    if world.hit(r, Interval::new(0.0, INFINITY), &mut rec) {
+        return (rec.normal + Color::new(1.0,1.0,1.0)) * 0.5;
     }
 
     let unit_direction = r.direction() / (r.direction().norm2().sqrt());
@@ -46,6 +39,13 @@ fn main() {
     //Calculate image height and ensure it is at least 1.
     let image_height: i32 = (image_width as f64 / aspect_ratio) as i32;
     let bar = ProgressBar::new(image_height as u64 - 1);
+
+    // World
+    let mut world = HittableList::default();
+
+    world.add(Rc::new(Sphere::new((0.0,0.0,-1.0),0.5)));
+    world.add(Rc::new(Sphere::new((0.0,-100.5,-1.0),100.0)));
+
 
     // Camera
     let focal_length = 1.0;
@@ -75,7 +75,8 @@ fn main() {
             let pixel_center = pixel00_loc + (pixel_delta_u * i as f64) + (pixel_delta_v * j as f64);
             let ray_direction = pixel_center - camera_center;
             let r = Ray::new(camera_center, ray_direction);
-            let pixel_color = ray_color(&r);
+            
+            let pixel_color = ray_color(&r, &world);
 
             write_color(pixel_color)
         }

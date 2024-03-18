@@ -14,3 +14,7 @@ impl<T:ops::Mul<Output = T  >> Mul for Vector3d<T> {
 
     }
 }
+
+pub fn unit_vector(vector: Vec3) -> Vec3 {
+    return vector / vector.norm2().sqrt();
+}

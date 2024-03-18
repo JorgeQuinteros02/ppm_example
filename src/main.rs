@@ -2,28 +2,37 @@ mod vec3;
 mod color;
 mod ray;
 
-use std::mem::Discriminant;
 
 use indicatif::ProgressBar;
 use color::Color;
 use color::write_color;
 use vec3::Vec3;
 use ray::Ray;
+use vec3::unit_vector;
 
-fn hit_sphere(center: &Vec3, radius: f64, r: &Ray) -> bool{
+fn hit_sphere(center: &Vec3, radius: f64, r: &Ray) -> f64{
     let oc = r.origin() - *center;
     let a = r.direction().norm2();
-    let b = 2.0 * oc.dot(r.direction());
+    let half_b = oc.dot(r.direction());
     let c = oc.norm2() - radius*radius;
-    let discriminant = b*b - 4.0*a*c;
+    let discriminant = half_b*half_b - a*c;
 
-    return discriminant >= 0.0;
+
+    if discriminant < 0.0 {
+        return -1.0;
+    } else {
+        return (-half_b -discriminant.sqrt()) / a;
+    }
 }
 
 fn ray_color(r: &Ray) -> Color {
-    if hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r) {
-        return Color::new(1.0, 0.0, 0.0)
+    let t = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r);
+    
+    if t > 0.0 {
+        let N = unit_vector(r.at(t) - Vec3::new(0.0,0.0,-1.0));
+        return Color::new(N.x + 1.0, N.y + 1.0, N.z + 1.0)*0.5;
     }
+
     let unit_direction = r.direction() / (r.direction().norm2().sqrt());
     let a = (unit_direction.y + 1.0) * 0.5;
     return Color::new(1.0, 1.0, 1.0)*(1.0 - a) + Color::new(0.5, 0.7, 1.0)*a;

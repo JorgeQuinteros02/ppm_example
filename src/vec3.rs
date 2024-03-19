@@ -28,7 +28,7 @@ fn random_vector_range(min:f64, max:f64) -> Vec3 {
     Vec3::new(r, g, b)
 }
 
-fn unit_vector(vector: Vec3) -> Vec3 {
+pub fn unit_vector(vector: Vec3) -> Vec3 {
     return vector / vector.norm2().sqrt();
 }
 
@@ -52,4 +52,14 @@ pub fn random_on_hemisphere(normal: &Vec3) -> Vec3 {
     } else {
         return -on_unit_sphere;
     }
+}
+
+pub fn near_zero(v:Vec3) -> bool {
+    //Return true if the vector is close to zero in all dimensions.
+    let s = 1e-8;
+    return v.x.abs() < s && v.y.abs() < s && v.z.abs() < s
+}
+
+pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+    *v - *n*(v.dot(*n)*2.0)
 }

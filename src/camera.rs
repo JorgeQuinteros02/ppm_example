@@ -2,6 +2,7 @@ use std::default;
 
 use crate::rtweekend::*;
 use crate::hittable::*;
+use crate::material::*;
 use indicatif::ProgressBar;
 
 pub struct Camera {
@@ -67,8 +68,12 @@ impl Camera {
         if depth <= 0 {return Color::new(0.0, 0.0, 0.0)}
 
         if world.hit(r, Interval::new(0.001, INFINITY), &mut rec) {
-            let direction = rec.normal + random_unit_vector();
-            return self.ray_color(&Ray::new(rec.p, direction), depth - 1, world) * 0.5;
+            let mut scattered = Ray::default();
+            let mut attenuation = Color::default();
+            if rec.mat.scatter(r, &rec, &mut attenuation, &mut scattered) {
+                return attenuation.mul(self.ray_color(&scattered, depth-1, world))
+            }
+            return Color::new(0.0, 0.0, 0.0)
         }
     
         let unit_direction = r.direction() / (r.direction().norm2().sqrt());

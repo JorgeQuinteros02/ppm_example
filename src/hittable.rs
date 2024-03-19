@@ -1,4 +1,7 @@
-use crate::rtweekend::*;
+use std::default;
+
+use crate:: rtweekend::*;
+use crate::material::*;
 
 
 
@@ -6,6 +9,7 @@ use crate::rtweekend::*;
 pub struct HitRecord {
     pub p: Vec3,
     pub normal: Vec3,
+    pub mat: Mat,
     pub t: f64,
     pub front_face: bool,
 }
@@ -26,6 +30,7 @@ impl HitRecord {
         }
     }
 }
+
 
 
 pub trait Hittable {

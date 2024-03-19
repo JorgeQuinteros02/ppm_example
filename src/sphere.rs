@@ -1,22 +1,61 @@
+use std::vec;
+
+use crate::aabb::AABB;
 use crate::rtweekend::*;
 use crate::hittable::*;
 use crate::material::*;
 
 pub struct Sphere {
-    center: Vec3,
+    center1: Vec3,
+    center_vec: Vec3,
     radius: f64,
     mat: Mat,
+    is_moving: bool,
+    bbox: AABB,
 }
 
 impl Sphere {
-    pub fn new(center: (f64,f64,f64), radius: f64, mat: &Mat) -> Sphere{
-        Sphere{center:Vec3::new(center.0,center.1,center.2), radius, mat:mat.clone()}
+    pub fn new(center: Vec3, radius: f64, mat: &Mat) -> HittableObject{
+        let rvec = vec_from_tuple((radius,radius,radius));
+        Option::Some(Rc::new(Sphere{
+            center1:center,
+            center_vec:vec_from_tuple((0.0,0.0,0.0)),
+            radius,
+            mat:mat.clone(),
+            is_moving: false,
+            bbox: AABB::from_points(center - rvec, center + rvec),
+        }))
+    }
+
+    pub fn new_movable(center1: Vec3, center2: Vec3, radius: f64, mat: &Mat) -> HittableObject{
+        let rvec = vec_from_tuple((radius,radius,radius));
+        let box1 = AABB::from_points(center1 - rvec, center1 + rvec);
+        let box2 = AABB::from_points(center2 - rvec, center2 + rvec);
+        
+
+
+        
+        Option::Some(Rc::new(Sphere{
+            center1:center1,
+            center_vec: center2 - center1,
+            radius,
+            mat:mat.clone(),
+            is_moving: true,
+            bbox: AABB::from_boxes(box1, box2),
+        }))
+    }
+
+    fn center(&self, time: f64) -> Vec3 {
+        // Linearly interpolate from center1 to center2 according to time, where t=0 yields
+        // center1, and t=1 yields center2.
+        self.center1 + self.center_vec * time
     }
 }
 
 impl Hittable for Sphere {
     fn hit(&self, r: &Ray, ray_t:Interval, rec: &mut HitRecord) -> bool {
-        let oc = r.origin() - self.center;
+        let center = if self.is_moving {self.center(r.time())} else {self.center1};
+        let oc = r.origin() - center;
         let a = r.direction().norm2();
         let half_b = oc.dot(r.direction());
         let c = oc.norm2() - self.radius * self.radius;
@@ -38,10 +77,14 @@ impl Hittable for Sphere {
 
         rec.t = root;
         rec.p = r.at(rec.t);
-        let outward_normal = (rec.p - self.center) / self.radius;
+        let outward_normal = (rec.p - center) / self.radius;
         rec.set_face_normal(r, outward_normal);
         rec.mat = self.mat.clone();
 
         return true;
+    }
+
+    fn bounding_box(&self) -> AABB {
+        self.bbox
     }
 }

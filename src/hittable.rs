@@ -2,6 +2,7 @@ use std::default;
 
 use crate:: rtweekend::*;
 use crate::material::*;
+use crate::aabb::AABB;
 
 
 
@@ -14,7 +15,23 @@ pub struct HitRecord {
     pub front_face: bool,
 }
 
-pub type HittableObject = Rc<dyn Hittable>;
+
+pub type HittableObject = Option<Rc<dyn Hittable>>;
+impl Hittable for HittableObject {
+    fn bounding_box(&self) -> AABB {
+        match self {
+            Some(t) => t.bounding_box(),
+            None => AABB::default(),
+        }
+    }
+
+    fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
+        match self {
+            Some(t) => t.hit(r, ray_t, rec),
+            None => false,
+        }
+    }
+}
 
 
 impl HitRecord {
@@ -35,4 +52,5 @@ impl HitRecord {
 
 pub trait Hittable {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
+    fn bounding_box(&self) -> AABB;
 }

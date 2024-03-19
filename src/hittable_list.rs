@@ -1,3 +1,4 @@
+use crate::aabb::AABB;
 use crate::rtweekend::*;
 use crate::hittable::*;
 
@@ -6,16 +7,21 @@ use crate::hittable::*;
 
 #[derive(Default)]
 pub struct HittableList {
-    objects: Vec<HittableObject>
+    pub objects: Vec<HittableObject>,
+    bbox: AABB,
 }
 
 impl HittableList {
-    pub fn new(object: HittableObject) -> HittableList {
-        return HittableList{objects: vec![object]};
+    pub fn new(object: HittableObject) -> HittableObject {
+        Option::Some(Rc::new(HittableList{
+            objects: vec![object],
+            bbox: AABB::default(),
+        }))
     }
 
     pub fn add(&mut self, object: HittableObject) {
-        self.objects.push(object);
+        self.objects.push(object.clone());
+        self.bbox = AABB::from_boxes(self.bbox, object.bounding_box());
     }
 }
 
@@ -34,5 +40,9 @@ impl Hittable for HittableList {
         }
 
         return hit_anything;
+    }
+
+    fn bounding_box(&self) -> AABB {
+        self.bbox
     }
 }

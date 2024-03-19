@@ -80,3 +80,7 @@ pub fn random_in_unit_disk() -> Vec3 {
         }
     }
 }
+
+pub fn vec_from_tuple(tuple: (f64,f64,f64)) -> Vec3 {
+    Vec3::new(tuple.0, tuple.1, tuple.2)
+}

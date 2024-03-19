@@ -17,11 +17,11 @@ impl<T:ops::Mul<Output = T  >> Mul for Vector3d<T> {
     }
 }
 
-fn random_vector() -> Vec3{
+pub fn random_vector() -> Vec3{
     Vec3::new(random_double(), random_double(), random_double())
 }
 
-fn random_vector_range(min:f64, max:f64) -> Vec3 {
+pub fn random_vector_range(min:f64, max:f64) -> Vec3 {
     let r = random_double_range(min, max);
     let g = random_double_range(min, max);
     let b = random_double_range(min, max);
@@ -60,6 +60,23 @@ pub fn near_zero(v:Vec3) -> bool {
     return v.x.abs() < s && v.y.abs() < s && v.z.abs() < s
 }
 
-pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
-    *v - *n*(v.dot(*n)*2.0)
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+    v - n*(v.dot(n)*2.0)
+}
+
+pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3{
+    let cos_theta = 1.0f64.min((-uv).dot(n));
+    let r_out_perp = (uv + n*cos_theta)*etai_over_etat;
+    let r_out_parallel = n * (-(((1.0 - r_out_perp.norm2()).abs()).sqrt()));
+    
+    r_out_perp + r_out_parallel
+}
+
+pub fn random_in_unit_disk() -> Vec3 {
+    loop {
+        let p = Vec3::new(random_double_range(-1.0,1.0), random_double_range(-1.0,1.0), 0.0);
+        if p.norm2() < 1.0 {
+            return p;
+        }
+    }
 }

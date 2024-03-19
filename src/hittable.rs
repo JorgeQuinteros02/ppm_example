@@ -26,7 +26,7 @@ impl HitRecord {
         if self.front_face {
             self.normal = outward_normal;
         } else {
-            self.normal = outward_normal;
+            self.normal = -outward_normal;
         }
     }
 }

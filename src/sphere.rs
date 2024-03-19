@@ -9,8 +9,8 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: (f64,f64,f64), radius: f64, mat: Mat) -> Sphere{
-        Sphere{center:Vec3::new(center.0,center.1,center.2), radius, mat}
+    pub fn new(center: (f64,f64,f64), radius: f64, mat: &Mat) -> Sphere{
+        Sphere{center:Vec3::new(center.0,center.1,center.2), radius, mat:mat.clone()}
     }
 }
 

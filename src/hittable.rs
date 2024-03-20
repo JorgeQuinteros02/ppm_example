@@ -1,10 +1,12 @@
-use std::default;
 
-use crate:: rtweekend::*;
-use crate::material::*;
-use crate::aabb::AABB;
+pub mod aabb;
+pub mod bvh;
+pub mod sphere;
+pub mod hittable_list;
 
-
+use crate:: utility::{vec3::Vec3, ray::Ray, interval::Interval};
+use crate::material::Mat;
+use aabb::AABB;
 
 #[derive(Default, Clone)]
 pub struct HitRecord {
@@ -15,24 +17,6 @@ pub struct HitRecord {
     pub front_face: bool,
     pub u: f64,
     pub v: f64,
-}
-
-
-pub type HittableObject = Option<Rc<dyn Hittable>>;
-impl Hittable for HittableObject {
-    fn bounding_box(&self) -> AABB {
-        match self {
-            Some(t) => t.bounding_box(),
-            None => AABB::default(),
-        }
-    }
-
-    fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
-        match self {
-            Some(t) => t.hit(r, ray_t, rec),
-            None => false,
-        }
-    }
 }
 
 

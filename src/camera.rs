@@ -1,6 +1,11 @@
-use std::default;
-
-use crate::rtweekend::*;
+use crate::utility::{
+    self,
+    vec3::{self, Vec3, Mul},
+    ray::Ray,
+    color::{self, Color},
+    interval::Interval,
+    INFINITY
+};
 use crate::hittable::*;
 use crate::material::*;
 use indicatif::ProgressBar;
@@ -44,7 +49,7 @@ impl Camera {
                     let r = self.get_ray(i,j);
                     pixel_color = pixel_color + self.ray_color(&r, self.max_depth, world)
                 }
-                write_color(pixel_color, self.samples_per_pixel)
+                color::write_color(pixel_color, self.samples_per_pixel)
             }
             bar.inc(1);
         }
@@ -65,8 +70,8 @@ impl Camera {
         
 
         // Calculate the u,v,w unit basis vectors for the camera coordinate frame.
-        self.w = unit_vector(self.lookfrom - self.lookat);
-        self.u = unit_vector(self.vup.cross(self.w));
+        self.w = vec3::unit_vector(self.lookfrom - self.lookat);
+        self.u = vec3::unit_vector(self.vup.cross(self.w));
         self.v = self.w.cross(self.u);
 
         // Calculate the vectors across the horizontal and down the vertical viewport edges.
@@ -117,21 +122,21 @@ impl Camera {
         
         let ray_origin = if self.defocus_angle <= 0.0 {self.center} else {self.defocus_disk_sample()};
         let ray_direction = pixel_sample - ray_origin;
-        let ray_time = random_double();
+        let ray_time = utility::random_double();
 
         Ray::new_timed(ray_origin, ray_direction, ray_time)
     }
 
     fn defocus_disk_sample(&self) -> Vec3 {
         // Returns a random point in the camera defocus disk.
-        let p = random_in_unit_disk();
+        let p = vec3::random_in_unit_disk();
         self.center + (self.defocus_disk_u * p.x) + (self.defocus_disk_v * p.y)
     }
 
     fn pixel_sample_square(&self) -> Vec3 {
         // Returns a random point in the square surrounding a pixel at the origin.
-        let px = -0.5 + random_double();
-        let py = -0.5 + random_double();
+        let px = -0.5 + utility::random_double();
+        let py = -0.5 + utility::random_double();
 
         (self.pixel_delta_u * px) + (self.pixel_delta_v * py)
     }

@@ -13,6 +13,8 @@ pub struct HitRecord {
     pub mat: Mat,
     pub t: f64,
     pub front_face: bool,
+    pub u: f64,
+    pub v: f64,
 }
 
 

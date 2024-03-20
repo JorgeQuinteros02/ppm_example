@@ -1,5 +1,6 @@
 use std::default;
 
+use crate::texture::{SolidColor, Texture};
 use crate::{ray, rtweekend::*};
 use crate::hittable::HitRecord;
 
@@ -23,12 +24,20 @@ impl Material for Mat {
 }
 
 pub struct Lambertian {
-    albedo: Color,
+    albedo: Rc<dyn Texture>,
 }
 
 impl Lambertian {
     pub fn new(a: &Color) -> Mat {
-        Option::Some(Rc::new(Lambertian { albedo:*a}))
+        Option::Some(Rc::new(Lambertian {
+            albedo:Rc::new(SolidColor::new(*a))
+        }))
+    }
+
+    pub fn from_texture(a: Rc<dyn Texture>) -> Mat {
+        Option::Some(Rc::new(Lambertian{
+            albedo: a
+        }))
     }
 }
 
@@ -42,7 +51,7 @@ impl Material for Lambertian {
         }
         
         *scattered = Ray::new_timed(rec.p, scatter_direction, r_in.time());
-        *attenuation = self.albedo;
+        *attenuation = self.albedo.value(rec.u, rec.v, rec.p);
         
         return true;
     }

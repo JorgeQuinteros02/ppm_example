@@ -11,11 +11,13 @@ mod material;
 mod aabb;
 mod bvh;
 mod texture;
+mod rtw_image;
 
 
 use bvh::BVHNode;
 use rtweekend::*;
 use hittable_list::*;
+use texture::{Checkered, ImageTexture};
 use crate::sphere::Sphere;
 use camera::*;
 use material::*;
@@ -23,11 +25,24 @@ use material::*;
 
 
 fn main() {
-  
+    let choice = 3;
+    match choice {
+        1 => random_spheres(),
+        2 => two_spheres(),
+        3 => earth(),
+        _ => return
+    };
+}
+
+fn random_spheres() {
+      
     let mut world = HittableList::default();
-    
-    let ground_material = Lambertian::new(&Color::new(0.5,0.5,0.5));
-    world.add(Sphere::new(vec_from_tuple((0.0,-1000.0,0.0)), 1000.0, &ground_material));
+
+    let checker = Rc::new(Checkered::from_colors(0.32, Color::new(0.2, 0.3, 0.1), Color::new(0.9, 0.9, 0.9)));
+    world.add(Sphere::new(vec_from_tuple((0.0,-1000.0,0.0)), 1000.0, &Lambertian::from_texture(checker)));
+
+    //let ground_material = Lambertian::new(&Color::new(0.5,0.5,0.5));
+    //world.add(Sphere::new(vec_from_tuple((0.0,-1000.0,0.0)), 1000.0, &ground_material));
 
     for a in -11..11 {
         for b in -11..11 {
@@ -88,5 +103,59 @@ fn main() {
     
   
     cam.render(&world);
-    
+}
+
+fn two_spheres() {
+    let mut world = HittableList::default();
+
+    let checker = Rc::new(Checkered::from_colors(0.8, Color::new(0.2, 0.3,0.1), Color::new(0.9, 0.9, 0.9)));
+
+    world.add(Sphere::new(vec_from_tuple((0.0,-10.0,0.0)), 10.0, &Lambertian::from_texture(checker.clone())));
+    world.add(Sphere::new(vec_from_tuple((0.0, 10.0,0.0)), 10.0, &Lambertian::from_texture(checker)));
+
+    let mut cam = Camera::default();
+
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth = 50;
+
+    cam.vfov = 20.0;
+    cam.lookfrom = Vec3::new(13.0, 2.0, 3.0);
+    cam.lookat = Vec3::new(0.0, 0.0, 0.0);
+    cam.vup = Vec3::new(0.0, 1.0, 0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&world);
+}
+
+fn earth() {
+    let earth_texture = Rc::new(ImageTexture::new("earthmap.jpg"));
+    let earth_surface = Lambertian::from_texture(earth_texture);
+    let globe = Sphere::new(
+        Vec3::new(0.0, 0.0, 0.0),
+        2.0,
+        &earth_surface
+    );
+
+    let mut world = HittableList::default();
+    world.add(globe);
+
+    let mut cam = Camera::default();
+
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth = 50;
+
+    cam.vfov = 20.0;
+    cam.lookfrom = Vec3::new(0.0, 0.0, 12.0);
+    cam.lookat = Vec3::new(0.0, 0.0, 0.0);
+    cam.vup = Vec3::new(0.0, 1.0, 0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&world);
+
 }

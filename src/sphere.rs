@@ -50,6 +50,14 @@ impl Sphere {
         // center1, and t=1 yields center2.
         self.center1 + self.center_vec * time
     }
+
+    pub fn get_sphere_uv(p:&Vec3, u:&mut f64, v:&mut f64) {
+        let theta = (-p.y).acos();
+        let phi = (-p.z).atan2(p.x) + PI;
+
+        *u = phi / (2.0*PI);
+        *v = theta / PI;
+    }
 }
 
 impl Hittable for Sphere {
@@ -79,6 +87,7 @@ impl Hittable for Sphere {
         rec.p = r.at(rec.t);
         let outward_normal = (rec.p - center) / self.radius;
         rec.set_face_normal(r, outward_normal);
+        Sphere::get_sphere_uv(&outward_normal, &mut rec.u, &mut rec.v);
         rec.mat = self.mat.clone();
 
         return true;

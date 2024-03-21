@@ -1,3 +1,5 @@
+use std::ops::Add;
+
 use crate::utility::{interval::Interval, vec3::Vec3, ray::Ray};
 
 #[derive(Default, Clone, Copy)]
@@ -64,6 +66,18 @@ impl AABB {
             x:new_x,
             y:new_y,
             z:new_z,
+        }
+    }
+}
+
+impl Add<Vec3> for AABB {
+    type Output = AABB;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        AABB {
+            x:self.x + rhs.x,
+            y:self.y + rhs.y,
+            z:self.z + rhs.z,
         }
     }
 }

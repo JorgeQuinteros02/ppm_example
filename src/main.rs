@@ -7,7 +7,7 @@ mod texture;
 
 use utility::{rand, color::Color, vec3::{self, Vec3, Mul}};
 use hittable::{
-    bvh::BVHNode, sphere::Sphere, hittable_list::HittableList, quad::Quad
+    bvh::BVHNode, hittable_list::HittableList, quad::{Quad, _box}, rotate_y::RotateY, sphere::Sphere, translate::Translate, Hittable
 };
 use material::{
     dielectric::Dielectric, diffuse::Lambertian, diffuse_light::DiffuseLight, metal::Metal
@@ -361,7 +361,7 @@ fn cornell_box() {
     );
     world.add(
         Rc::new(Quad::new(
-            Vec3::new(334.0, 554.0, 332.0), 
+            Vec3::new(343.0, 554.0, 332.0), 
             Vec3::new(-130.0, 0.0, 0.0), 
             Vec3::new(0.0, 0.0, -105.0), 
         light)
@@ -388,9 +388,28 @@ fn cornell_box() {
             Vec3::new(0.0, 0.0, 555.0), 
             Vec3::new(555.0, 0.0, 0.0), 
             Vec3::new(0.0, 555.0, 0.0), 
-        white)
+        white.clone())
         )
     );
+
+    let mut box1:Rc<dyn Hittable> = _box(
+        Vec3::default(),
+        Vec3::new(165.0, 330.0, 165.0),
+        white.clone()
+    );
+
+    box1 = Rc::new(RotateY::new(box1, -15.0));
+    box1 = Rc::new(Translate::new(box1, Vec3::new(265.0, 0.0, 295.0)));
+    world.add(box1);
+
+    let mut box2: Rc<dyn Hittable> = _box(
+        Vec3::default(),
+        Vec3::new(165.0, 165.0, 165.0),
+        white
+    );
+    box2 = Rc::new(RotateY::new(box2, -18.0));
+    box2 = Rc::new(Translate::new(box2, Vec3::new(130.0, 0.0, 65.0)));
+    world.add(box2);
     
     let mut cam = Camera::default();
 

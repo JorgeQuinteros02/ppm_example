@@ -1,3 +1,7 @@
+use std::ops::Add;
+
+use super::vec3::Vec3;
+
 #[derive(Clone, Copy)]
 pub struct Interval {
     pub min: f64,
@@ -48,6 +52,16 @@ impl Interval {
 impl Default for Interval {
     fn default() -> Self {
         Interval::EMPTY
+    }
+}
+
+impl Add<f64> for Interval {
+    type Output = Interval;
+    fn add(self, rhs: f64) -> Self::Output {
+        Interval {
+            min:self.min + rhs,
+            max: self.max + rhs
+        }
     }
 }
 

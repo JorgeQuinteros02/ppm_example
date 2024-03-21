@@ -10,9 +10,7 @@ use hittable::{
     bvh::BVHNode, sphere::Sphere, hittable_list::HittableList, quad::Quad
 };
 use material::{
-    diffuse::Lambertian,
-    metal::Metal,
-    dielectric::Dielectric,
+    dielectric::Dielectric, diffuse::Lambertian, diffuse_light::DiffuseLight, metal::Metal
 };
 use texture::{
     checkered::Checkered,
@@ -35,6 +33,8 @@ fn main() {
         "3" => earth(),
         "4" => two_perlin_spheres(),
         "5" => quads(),
+        "6" => simple_light(),
+        "7" => cornell_box(),
         _ => println!("Unrecognized option")
     };
 }
@@ -49,7 +49,7 @@ fn random_spheres() {
             Sphere::new(
                 vec3::vec_from_tuple((0.0,-1000.0,0.0)), 
                 1000.0, 
-                &Lambertian::from_texture(checker)
+                Lambertian::from_texture(checker)
             )
         )
     );
@@ -76,11 +76,11 @@ fn random_spheres() {
                     let albedo = vec3::random_vector_range(0.5,1.0);
                     let fuzz = rand::random_double_range(0.0, 0.5);
                     sphere_material = Metal::new(&albedo, fuzz);
-                    world.add(Rc::new(Sphere::new(center, 0.2, &sphere_material)));
+                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
                 } else {
                     // glass
                     sphere_material = Dielectric::new(1.5);
-                    world.add(Rc::new(Sphere::new(center, 0.2, &sphere_material)));
+                    world.add(Rc::new(Sphere::new(center, 0.2, sphere_material)));
                 
                 }
             }
@@ -88,13 +88,13 @@ fn random_spheres() {
     }
 
     let material1 = Dielectric::new(1.5);
-    world.add(Rc::new(Sphere::new(vec3::vec_from_tuple((0.0,1.,0.0)), 1.0, &material1)));
+    world.add(Rc::new(Sphere::new(vec3::vec_from_tuple((0.0,1.,0.0)), 1.0, material1)));
 
     let material2 = Lambertian::new(&Vec3::new(0.4, 0.2, 0.1));
-    world.add(Rc::new(Sphere::new(vec3::vec_from_tuple((-4.0,1.0,0.0)), 1.0, &material2)));
+    world.add(Rc::new(Sphere::new(vec3::vec_from_tuple((-4.0,1.0,0.0)), 1.0, material2)));
 
     let material3 = Metal::new(&Vec3::new(0.7, 0.6, 0.5), 0.0);
-    world.add(Rc::new(Sphere::new(vec3::vec_from_tuple((4.0,1.0,0.0)), 1.0, &material3)));
+    world.add(Rc::new(Sphere::new(vec3::vec_from_tuple((4.0,1.0,0.0)), 1.0, material3)));
 
     let world = HittableList::new(Rc::new(BVHNode::new(&world)));
 
@@ -105,6 +105,7 @@ fn random_spheres() {
     cam.image_width = 1200;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+    cam.background = Color::new(0.70, 0.80, 1.00);
 
     cam.vfov = 20.0;
     cam.lookfrom = Vec3::new(13.0, 2.0, 3.0);
@@ -123,8 +124,8 @@ fn two_spheres() {
 
     let checker = Rc::new(Checkered::from_colors(0.8, Color::new(0.2, 0.3,0.1), Color::new(0.9, 0.9, 0.9)));
 
-    world.add(Rc::new(Sphere::new(vec3::vec_from_tuple((0.0,-10.0,0.0)), 10.0, &Lambertian::from_texture(checker.clone()))));
-    world.add(Rc::new(Sphere::new(vec3::vec_from_tuple((0.0, 10.0,0.0)), 10.0, &Lambertian::from_texture(checker))));
+    world.add(Rc::new(Sphere::new(vec3::vec_from_tuple((0.0,-10.0,0.0)), 10.0, Lambertian::from_texture(checker.clone()))));
+    world.add(Rc::new(Sphere::new(vec3::vec_from_tuple((0.0, 10.0,0.0)), 10.0, Lambertian::from_texture(checker))));
 
     let mut cam = Camera::default();
 
@@ -132,6 +133,8 @@ fn two_spheres() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+    cam.background = Color::new(0.70, 0.80, 1.00);
+
 
     cam.vfov = 20.0;
     cam.lookfrom = Vec3::new(13.0, 2.0, 3.0);
@@ -149,7 +152,7 @@ fn earth() {
     let globe = Rc::new(Sphere::new(
         Vec3::new(0.0, 0.0, 0.0),
         2.0,
-        &earth_surface
+        earth_surface
     ));
 
     let mut world = HittableList::default();
@@ -161,6 +164,8 @@ fn earth() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+    cam.background = Color::new(0.70, 0.80, 1.00);
+
 
     cam.vfov = 20.0;
     cam.lookfrom = Vec3::new(0.0, 0.0, 12.0);
@@ -181,13 +186,15 @@ fn two_perlin_spheres() {
         Rc::new(Sphere::new(
             Vec3::new(0.0, -1000.0, 0.0),
             1000.0,
-            &Rc::new(Lambertian::from_texture(pertext.clone()))))
+            Lambertian::from_texture(pertext.clone()))
+        )
     );
     world.add(
         Rc::new(Sphere::new(
             Vec3::new(0.0, 2.0, 0.0),
             2.0,
-            &Rc::new(Lambertian::from_texture(pertext))))
+            Lambertian::from_texture(pertext))
+        )
     );
 
     let mut cam = Camera::default();
@@ -196,6 +203,8 @@ fn two_perlin_spheres() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+    cam.background = Color::new(0.70, 0.80, 1.00);
+
 
     cam.vfov = 20.0;
     cam.lookfrom = Vec3::new(13.0, 2.0, 3.0);
@@ -255,6 +264,8 @@ fn quads() {
     cam.image_width = 400;
     cam.samples_per_pixel = 100;
     cam.max_depth = 50;
+    cam.background = Color::new(0.70, 0.80, 1.00);
+
 
     cam.vfov = 80.0;
     cam.lookfrom = Vec3::new(0.0, 0.0, 9.0);
@@ -265,5 +276,138 @@ fn quads() {
 
     cam.render(&world);
     
+
+}
+
+fn simple_light () {
+    let mut world = HittableList::default();
+
+    let pertext = Rc::new(NoiseTexture::new(4.0));
+    world.add(
+        Rc::new(Sphere::new(
+            Vec3::new(0.0, -1000.0, 0.0),
+            1000.0,
+            Lambertian::from_texture(pertext.clone()))
+        )
+    );
+    world.add(
+        Rc::new(Sphere::new(
+            Vec3::new(0.0, 2.0, 0.0),
+            2.0,
+            Lambertian::from_texture(pertext))
+        )
+    );
+
+    let difflight = Rc::new(DiffuseLight::from_color(Color::new(4.0, 4.0, 4.0)));
+    world.add(
+        Rc::new(Sphere::new(
+            Vec3::new(0.0, 7.0, 0.0), 
+            2.0, 
+        difflight.clone()
+        ))
+    );
+    world.add(
+        Rc::new(Quad::new(
+            Vec3::new(3.0, 1.0, -2.0), 
+            Vec3::new(2.0, 0.0, 0.0),
+            Vec3::new(0.0, 2.0, 0.0),
+            difflight
+        ))
+    );
+
+    let mut cam = Camera::default();
+
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 800;
+    cam.samples_per_pixel = 100;
+    cam.max_depth = 50;
+    cam.background = Color::new(0.0, 0.0, 0.0);
+
+
+    cam.vfov = 20.0;
+    cam.lookfrom = Vec3::new(26.0, 3.0, 6.0);
+    cam.lookat = Vec3::new(0.0, 2.0, 0.0);
+    cam.vup = Vec3::new(0.0, 1.0, 0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&world);
+
+}
+
+fn cornell_box() {
+    let mut world = HittableList::default();
+
+    let red = Lambertian::new(&Color::new(0.65, 0.05, 0.05));
+    let white = Lambertian::new(&Color::new(0.73, 0.73, 0.73));
+    let green = Lambertian::new(&Color::new(0.12, 0.45, 0.15));
+    let light = Rc::new(DiffuseLight::from_color(Color::new(15.0, 15.0, 15.0)));
+
+    world.add(
+        Rc::new(Quad::new(
+            Vec3::new(555.0, 0.0, 0.0), 
+            Vec3::new(0.0, 555.0, 0.0), 
+            Vec3::new(0.0, 0.0, 555.0), 
+        green)
+        )
+    );
+    world.add(
+        Rc::new(Quad::new(
+            Vec3::new(0.0, 0.0, 0.0), 
+            Vec3::new(0.0, 555.0, 0.0), 
+            Vec3::new(0.0, 0.0, 555.0), 
+        red)
+        )
+    );
+    world.add(
+        Rc::new(Quad::new(
+            Vec3::new(334.0, 554.0, 332.0), 
+            Vec3::new(-130.0, 0.0, 0.0), 
+            Vec3::new(0.0, 0.0, -105.0), 
+        light)
+        )
+    );
+    world.add(
+        Rc::new(Quad::new(
+            Vec3::new(0.0, 0.0, 0.0), 
+            Vec3::new(555.0, 0.0, 0.0), 
+            Vec3::new(0.0, 0.0, 555.0), 
+        white.clone())
+        )
+    );
+    world.add(
+        Rc::new(Quad::new(
+            Vec3::new(555.0, 555.0, 555.0), 
+            Vec3::new(-555.0, 0.0, 0.0), 
+            Vec3::new(0.0, 0.0, -555.0), 
+        white.clone())
+        )
+    );
+    world.add(
+        Rc::new(Quad::new(
+            Vec3::new(0.0, 0.0, 555.0), 
+            Vec3::new(555.0, 0.0, 0.0), 
+            Vec3::new(0.0, 555.0, 0.0), 
+        white)
+        )
+    );
+    
+    let mut cam = Camera::default();
+
+    cam.aspect_ratio = 1.0;
+    cam.image_width = 600;
+    cam.samples_per_pixel = 200;
+    cam.max_depth = 50;
+    cam.background = Color::new(0.0, 0.0, 0.0);
+
+
+    cam.vfov = 40.0;
+    cam.lookfrom = Vec3::new(278.0, 278.0, -800.0);
+    cam.lookat = Vec3::new(278.0, 278.0, 0.0);
+    cam.vup = Vec3::new(0.0, 1.0, 0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&world);
 
 }

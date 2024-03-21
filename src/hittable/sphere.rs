@@ -12,7 +12,7 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f64, mat: &Mat) -> Self{
+    pub fn new(center: Vec3, radius: f64, mat: Mat) -> Self{
         let rvec = vec3::vec_from_tuple((radius,radius,radius));
         Sphere{
             center1:center,

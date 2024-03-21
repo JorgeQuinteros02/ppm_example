@@ -14,6 +14,7 @@ pub struct Camera {
     pub image_width:i32,
     pub samples_per_pixel:i32,
     pub max_depth: i32,
+    pub background: Color,
     pub vfov: f64, // Vertical view angle
     pub lookfrom: Vec3,
     pub lookat: Vec3,
@@ -95,21 +96,28 @@ impl Camera {
     fn ray_color (&self, r: &Ray, depth:i32, world:&impl Hittable) -> Color {
         let mut rec = HitRecord::default();
         
+        // If we've exceeded the ray bounce limit, no more light is gathered.
         if depth <= 0 {return Color::new(0.0, 0.0, 0.0)}
 
-        if world.hit(r, Interval::new(0.001, INFINITY), &mut rec) {
-            let mut scattered = Ray::default();
-            let mut attenuation = Color::default();
-            if rec.mat().scatter(r, &rec, &mut attenuation, &mut scattered) {
-                return attenuation.mul(self.ray_color(&scattered, depth-1, world))
-            }
-            //println!("ASDFASDFASDFASDFASDFASDFASDF");
-            return Color::new(0.0, 0.0, 0.0)
+        // If the ray hits nothing, return the background color.
+        if !world.hit(r, Interval::new(0.001, INFINITY), &mut rec) {
+            return self.background
         }
-    
-        let unit_direction = r.direction() / (r.direction().norm2().sqrt());
+        
+        
+        let mut scattered = Ray::default();
+        let mut attenuation = Color::default();
+        let color_from_emission = rec.mat().emitted(rec.u, rec.v, &rec.p);
+
+        if !rec.mat().scatter(r, &rec, &mut attenuation, &mut scattered) {
+            return color_from_emission
+        }
+        let color_from_scatter = attenuation.mul(self.ray_color(&scattered, depth-1, world));
+        
+        color_from_emission + color_from_scatter
+        /* let unit_direction = r.direction() / (r.direction().norm2().sqrt());
         let a = (unit_direction.y + 1.0) * 0.5;
-        return Color::new(1.0, 1.0, 1.0)*(1.0 - a) + Color::new(0.5, 0.7, 1.0)*a;
+        return Color::new(1.0, 1.0, 1.0)*(1.0 - a) + Color::new(0.5, 0.7, 1.0)*a; */
     }
 
     fn get_ray(&self, i: i32, j:i32) -> Ray {
@@ -148,6 +156,7 @@ impl Default for Camera {
             image_width:100,
             samples_per_pixel:10,
             max_depth:10,
+            background:Color::default(),
             vfov:90.0,
             lookfrom: Vec3::new(0.0, 0.0, -1.0),
             lookat: Vec3::new(0.0, 0.0, 0.0),

@@ -12,7 +12,7 @@ use aabb::AABB;
 pub struct HitRecord {
     pub p: Vec3,
     pub normal: Vec3,
-    pub mat: Mat,
+    mat: Option<Mat>,
     pub t: f64,
     pub front_face: bool,
     pub u: f64,
@@ -31,6 +31,10 @@ impl HitRecord {
         } else {
             self.normal = -outward_normal;
         }
+    }
+
+    pub fn mat(&self) -> Mat{
+        self.mat.clone().unwrap()
     }
 }
 

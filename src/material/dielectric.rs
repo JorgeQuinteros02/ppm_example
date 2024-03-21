@@ -1,4 +1,4 @@
-use super::{Material, Mat, HitRecord, utility::{self, vec3, ray::Ray, color::Color}};
+use super::{Material, Mat, HitRecord, utility::{rand, vec3, ray::Ray, color::Color}};
 use std::rc::Rc;
 
 
@@ -8,7 +8,7 @@ pub struct Dielectric {
 
 impl Dielectric {
     pub fn new(index_of_refraction: f64) -> Mat {
-        Option::Some(Rc::new(Dielectric { ir:index_of_refraction}))
+        Rc::new(Dielectric { ir:index_of_refraction})
     }
 
     pub fn reflectance(&self, cosine:f64, ref_idx:f64) -> f64 {
@@ -31,7 +31,7 @@ impl Material for Dielectric {
         let cannot_refract = refraction_ratio * sin_theta > 1.0;
         let direction;
 
-        if cannot_refract || self.reflectance(cos_theta, refraction_ratio) > utility::random_double() {
+        if cannot_refract || self.reflectance(cos_theta, refraction_ratio) > rand::random_double() {
             direction = vec3::reflect(unit_direction, rec.normal);
         } else {
             direction = vec3::refract(unit_direction, rec.normal, refraction_ratio);

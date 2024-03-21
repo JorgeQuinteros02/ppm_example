@@ -5,14 +5,20 @@ mod material;
 mod texture;
 
 
-use utility::{color::Color, vec3::{self, Vec3, Mul}};
+use utility::{rand, color::Color, vec3::{self, Vec3, Mul}};
 use hittable::{
     bvh::BVHNode, sphere::Sphere, hittable_list::HittableList
 };
 use material::{
-    diffuse::Lambertian, metal::Metal, dielectric::Dielectric
+    diffuse::Lambertian,
+    metal::Metal,
+    dielectric::Dielectric,
 };
-use texture::{checkered::Checkered, image::ImageTexture};
+use texture::{
+    checkered::Checkered,
+    image::ImageTexture,
+    noise::NoiseTexture
+};
 use camera::Camera;
 use std::rc::Rc;
 use std::env;
@@ -27,6 +33,7 @@ fn main() {
         "1" => random_spheres(),
         "2" => two_spheres(),
         "3" => earth(),
+        "4" => two_perlin_spheres(),
         _ => println!("Unrecognized option")
     };
 }
@@ -51,8 +58,8 @@ fn random_spheres() {
 
     for a in -11..11 {
         for b in -11..11 {
-            let choose_mat = utility::random_double();
-            let center = Vec3::new(a as f64 + 0.9*utility::random_double(), 0.2, b as f64 + 0.9*utility::random_double());
+            let choose_mat = rand::random_double();
+            let center = Vec3::new(a as f64 + 0.9*rand::random_double(), 0.2, b as f64 + 0.9*rand::random_double());
 
             if (center - Vec3::new(4.0, 0.2, 0.0)).norm2() > 0.9 {
                 let sphere_material ;
@@ -61,12 +68,12 @@ fn random_spheres() {
                     //diffuse
                     let albedo: Color = vec3::random_vector().mul(vec3::random_vector());
                     sphere_material = Lambertian::new(&albedo);
-                    let center2 = center + vec3::vec_from_tuple((0.0,utility::random_double_range(0.0, 0.5),0.0));
+                    let center2 = center + vec3::vec_from_tuple((0.0,rand::random_double_range(0.0, 0.5),0.0));
                     world.add(Rc::new(Sphere::new_movable(center, center2,0.2, &sphere_material)));
                 } else if choose_mat < 0.95 {
                     //metal
                     let albedo = vec3::random_vector_range(0.5,1.0);
-                    let fuzz = utility::random_double_range(0.0, 0.5);
+                    let fuzz = rand::random_double_range(0.0, 0.5);
                     sphere_material = Metal::new(&albedo, fuzz);
                     world.add(Rc::new(Sphere::new(center, 0.2, &sphere_material)));
                 } else {
@@ -163,4 +170,38 @@ fn earth() {
 
     cam.render(&world);
 
+}
+
+fn two_perlin_spheres() {
+    let mut world = HittableList::default();
+
+    let pertext = Rc::new(NoiseTexture::new(4.0));
+    world.add(
+        Rc::new(Sphere::new(
+            Vec3::new(0.0, -1000.0, 0.0),
+            1000.0,
+            &Rc::new(Lambertian::from_texture(pertext.clone()))))
+    );
+    world.add(
+        Rc::new(Sphere::new(
+            Vec3::new(0.0, 2.0, 0.0),
+            2.0,
+            &Rc::new(Lambertian::from_texture(pertext))))
+    );
+
+    let mut cam = Camera::default();
+
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth = 50;
+
+    cam.vfov = 20.0;
+    cam.lookfrom = Vec3::new(13.0, 2.0, 3.0);
+    cam.lookat = Vec3::new(0.0, 0.0, 0.0);
+    cam.vup = Vec3::new(0.0, 1.0, 0.0);
+
+    cam.defocus_angle = 0.0;
+
+    cam.render(&world);
 }

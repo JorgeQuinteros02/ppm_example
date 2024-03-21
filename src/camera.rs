@@ -1,5 +1,5 @@
 use crate::utility::{
-    self,
+    rand,
     vec3::{self, Vec3, Mul},
     ray::Ray,
     color::{self, Color},
@@ -7,7 +7,6 @@ use crate::utility::{
     INFINITY
 };
 use crate::hittable::*;
-use crate::material::*;
 use indicatif::ProgressBar;
 
 pub struct Camera {
@@ -47,7 +46,7 @@ impl Camera {
                 let mut pixel_color = Vec3::new(0.0, 0.0, 0.0);
                 for _sample in 0..self.samples_per_pixel {
                     let r = self.get_ray(i,j);
-                    pixel_color = pixel_color + self.ray_color(&r, self.max_depth, world)
+                    pixel_color = pixel_color + self.ray_color(&r, self.max_depth, world);
                 }
                 color::write_color(pixel_color, self.samples_per_pixel)
             }
@@ -101,7 +100,7 @@ impl Camera {
         if world.hit(r, Interval::new(0.001, INFINITY), &mut rec) {
             let mut scattered = Ray::default();
             let mut attenuation = Color::default();
-            if rec.mat.scatter(r, &rec, &mut attenuation, &mut scattered) {
+            if rec.mat().scatter(r, &rec, &mut attenuation, &mut scattered) {
                 return attenuation.mul(self.ray_color(&scattered, depth-1, world))
             }
             //println!("ASDFASDFASDFASDFASDFASDFASDF");
@@ -122,7 +121,7 @@ impl Camera {
         
         let ray_origin = if self.defocus_angle <= 0.0 {self.center} else {self.defocus_disk_sample()};
         let ray_direction = pixel_sample - ray_origin;
-        let ray_time = utility::random_double();
+        let ray_time = rand::random_double();
 
         Ray::new_timed(ray_origin, ray_direction, ray_time)
     }
@@ -135,8 +134,8 @@ impl Camera {
 
     fn pixel_sample_square(&self) -> Vec3 {
         // Returns a random point in the square surrounding a pixel at the origin.
-        let px = -0.5 + utility::random_double();
-        let py = -0.5 + utility::random_double();
+        let px = -0.5 + rand::random_double();
+        let py = -0.5 + rand::random_double();
 
         (self.pixel_delta_u * px) + (self.pixel_delta_v * py)
     }

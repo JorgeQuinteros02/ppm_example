@@ -1,7 +1,7 @@
 use vector3d::Vector3d;
 use std::ops;
 
-use crate::utility;
+use crate::utility::rand;
 pub type Vec3 = Vector3d<f64>;
 
 pub trait Mul {
@@ -17,13 +17,13 @@ impl<T:ops::Mul<Output = T  >> Mul for Vector3d<T> {
 }
 
 pub fn random_vector() -> Vec3{
-    Vec3::new(utility::random_double(), utility::random_double(), utility::random_double())
+    Vec3::new(rand::random_double(), rand::random_double(), rand::random_double())
 }
 
 pub fn random_vector_range(min:f64, max:f64) -> Vec3 {
-    let r = utility::random_double_range(min, max);
-    let g = utility::random_double_range(min, max);
-    let b = utility::random_double_range(min, max);
+    let r = rand::random_double_range(min, max);
+    let g = rand::random_double_range(min, max);
+    let b = rand::random_double_range(min, max);
     Vec3::new(r, g, b)
 }
 
@@ -73,7 +73,7 @@ pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3{
 
 pub fn random_in_unit_disk() -> Vec3 {
     loop {
-        let p = Vec3::new(utility::random_double_range(-1.0,1.0), utility::random_double_range(-1.0,1.0), 0.0);
+        let p = Vec3::new(rand::random_double_range(-1.0,1.0), rand::random_double_range(-1.0,1.0), 0.0);
         if p.norm2() < 1.0 {
             return p;
         }

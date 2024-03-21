@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::rc::Rc;
-use crate::utility::{self, ray::Ray, interval::Interval};
+use crate::utility::{rand, ray::Ray, interval::Interval};
 use super::{Hittable, hittable_list::HittableList, aabb::AABB};
 
 pub struct BVHNode {
@@ -35,7 +35,7 @@ impl BVHNode {
         let right: Rc<dyn Hittable>;
 
 
-        let axis = utility::random_int_range(0,2) as usize;
+        let axis = rand::random_int_range(0,2) as usize;
         let comparator = |a:&Rc<dyn Hittable>,b:&Rc<dyn Hittable>|{BVHNode::box_compare(a.clone(),b.clone(),axis)};
 
         let object_span = end - start;

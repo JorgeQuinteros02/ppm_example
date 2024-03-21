@@ -52,4 +52,18 @@ impl AABB {
         }
         true
     }
+
+    pub fn pad(&self) -> AABB {
+        // Return an AABB that has no side narrower than some delta, padding if necessary.
+        let delta = 0.0001;
+        let new_x = if self.x.size() >= delta {self.x} else {self.x.expand(delta)};
+        let new_y = if self.y.size() >= delta {self.y} else {self.y.expand(delta)};
+        let new_z = if self.z.size() >= delta {self.z} else {self.z.expand(delta)};
+        
+        AABB{
+            x:new_x,
+            y:new_y,
+            z:new_z,
+        }
+    }
 }

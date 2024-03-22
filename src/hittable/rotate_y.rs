@@ -2,13 +2,13 @@ use std::rc::Rc;
 
 use crate::utility::{interval::Interval, ray::Ray, vec3::Vec3};
 
-use super::{aabb::AABB, HitRecord, Hittable};
+use super::{aabb::Aabb, HitRecord, Hittable};
 
 pub struct RotateY {
     object: Rc<dyn Hittable>,
     sin_theta: f64,
     cos_theta: f64,
-    bbox:AABB
+    bbox:Aabb
 }
 
 impl RotateY {
@@ -45,7 +45,7 @@ impl RotateY {
 
         RotateY {
             object, sin_theta, cos_theta,
-            bbox:AABB::from_points(min, max),
+            bbox:Aabb::from_points(min, max),
         }
     }
 }
@@ -87,7 +87,7 @@ impl Hittable for RotateY {
         true
     }
 
-    fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> Aabb {
         self.bbox
     }
 }

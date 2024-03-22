@@ -15,7 +15,7 @@ impl Perlin {
 
     pub fn new() -> Self {
         let mut ranvec = Box::from_iter([Vec3::default();Self::POINT_COUNT]);
-        for i in 0..Self::POINT_COUNT as usize {
+        for i in 0..Self::POINT_COUNT {
             ranvec[i] = vec3::unit_vector(vec3::random_vector_range(-1.0, 1.0))
         }
 
@@ -37,9 +37,9 @@ impl Perlin {
         let k = (p.z.floor()) as i32;
 
         let mut c  = [[[Vec3::default();2];2];2];
-        for di in 0..2 {
-            for dj in 0..2 {
-                for dk in 0..2 {
+        for (di, vec2d) in c.clone().iter_mut().enumerate() {
+            for (dj ,vec1d) in vec2d.iter_mut().enumerate() {
+                for (dk, _) in vec1d.iter_mut().enumerate() {
                     c[di][dj][dk] = self.ranvec [
                         
                             self.perm_x[((i+di as i32)  & 255) as usize] ^
@@ -51,7 +51,7 @@ impl Perlin {
             }
         }
 
-        return Perlin::perlin_interp(&c, u, v, w)
+        Perlin::perlin_interp(&c, u, v, w)
     }
 
     pub fn perlin_generate_perm() -> Box<[usize]> {

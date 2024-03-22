@@ -1,5 +1,5 @@
 use crate::utility::{vec3::{self, Vec3}, interval::Interval, ray::Ray, PI};
-use super::{Hittable, HitRecord, aabb::AABB};
+use super::{Hittable, HitRecord, aabb::Aabb};
 use crate::material::Mat;
 
 pub struct Sphere {
@@ -8,7 +8,7 @@ pub struct Sphere {
     radius: f64,
     mat: Mat,
     is_moving: bool,
-    bbox: AABB,
+    bbox: Aabb,
 }
 
 impl Sphere {
@@ -20,25 +20,25 @@ impl Sphere {
             radius,
             mat:mat.clone(),
             is_moving: false,
-            bbox: AABB::from_points(center - rvec, center + rvec),
+            bbox: Aabb::from_points(center - rvec, center + rvec),
         }
     }
 
     pub fn new_movable(center1: Vec3, center2: Vec3, radius: f64, mat: &Mat) -> Sphere{
         let rvec = vec3::vec_from_tuple((radius,radius,radius));
-        let box1 = AABB::from_points(center1 - rvec, center1 + rvec);
-        let box2 = AABB::from_points(center2 - rvec, center2 + rvec);
+        let box1 = Aabb::from_points(center1 - rvec, center1 + rvec);
+        let box2 = Aabb::from_points(center2 - rvec, center2 + rvec);
         
 
 
         
         Sphere{
-            center1:center1,
+            center1,
             center_vec: center2 - center1,
             radius,
             mat:mat.clone(),
             is_moving: true,
-            bbox: AABB::from_boxes(box1, box2),
+            bbox: Aabb::from_boxes(box1, box2),
         }
     }
 
@@ -87,10 +87,10 @@ impl Hittable for Sphere {
         Sphere::get_sphere_uv(outward_normal, &mut rec.u, &mut rec.v);
         rec.mat = Option::Some(self.mat.clone());
 
-        return true;
+        true
     }
 
-    fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> Aabb {
         self.bbox
     }
 }

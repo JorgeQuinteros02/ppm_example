@@ -318,6 +318,7 @@ dependencies = [
  "image",
  "indicatif",
  "rand",
+ "rayon",
  "vector3d",
 ]
 

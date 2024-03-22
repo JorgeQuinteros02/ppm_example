@@ -1,4 +1,4 @@
-use super::{Material, Mat, HitRecord, utility::{vec3, ray::Ray, color::Color}};
+use super::{Material, HitRecord, utility::{vec3, ray::Ray, color::Color}};
 use crate::texture::{Texture, solid_color::SolidColor};
 use std::rc::Rc;
 
@@ -7,16 +7,16 @@ pub struct Lambertian {
 }
 
 impl Lambertian {
-    pub fn new(a: Color) -> Mat {
-        Rc::new(Lambertian {
+    pub fn new(a: Color) -> Self {
+        Lambertian {
             albedo:Rc::new(SolidColor::new(a))
-        })
+        }
     }
 
-    pub fn from_texture(a: Rc<dyn Texture>) -> Mat {
-        Rc::new(Lambertian{
+    pub fn from_texture(a: Rc<dyn Texture>) -> Self {
+        Lambertian{
             albedo: a
-        })
+        }
     }
 }
 
@@ -32,6 +32,6 @@ impl Material for Lambertian {
         *scattered = Ray::new_timed(rec.p, scatter_direction, r_in.time());
         *attenuation = self.albedo.value(rec.u, rec.v, rec.p);
         
-        return true;
+        true
     }
 }

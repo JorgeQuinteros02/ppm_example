@@ -2,12 +2,12 @@ use std::rc::Rc;
 
 use crate::utility::{ray::Ray, vec3::Vec3};
 
-use super::{aabb::AABB, Hittable};
+use super::{aabb::Aabb, Hittable};
 
 pub struct Translate {
     object: Rc<dyn Hittable>,
     offset: Vec3,
-    bbox: AABB
+    bbox: Aabb
 }
 
 impl Translate {
@@ -36,7 +36,7 @@ impl Hittable for Translate {
         true
     }
 
-    fn bounding_box(&self) -> AABB {
-        return self.bbox
+    fn bounding_box(&self) -> Aabb {
+        self.bbox
     }
 }

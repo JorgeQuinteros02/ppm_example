@@ -1,5 +1,4 @@
-use super::{Material, Mat, HitRecord, utility::{vec3, ray::Ray, color::Color}};
-use std::rc::Rc;
+use super::{Material, HitRecord, utility::{vec3, ray::Ray, color::Color}};
 
 pub struct Metal {
     albedo:Color,
@@ -7,9 +6,9 @@ pub struct Metal {
 }
 
 impl Metal {
-    pub fn new(a:Color, f:f64) -> Mat {
+    pub fn new(a:Color, f:f64) -> Self {
         let fuzz = if f < 1.0 {f} else {1.0};
-        Rc::new(Metal { albedo:a, fuzz })
+        Metal { albedo:a, fuzz }
     }
 }
 

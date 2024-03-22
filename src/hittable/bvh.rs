@@ -1,16 +1,16 @@
 use std::cmp::Ordering;
 use std::rc::Rc;
 use crate::utility::{rand, ray::Ray, interval::Interval};
-use super::{Hittable, hittable_list::HittableList, aabb::AABB};
+use super::{Hittable, hittable_list::HittableList, aabb::Aabb};
 
 pub struct BVHNode {
     left: Rc<dyn Hittable>,
     right: Rc<dyn Hittable>,
-    bbox: AABB,
+    bbox: Aabb,
 }
 
 impl Hittable for BVHNode {
-    fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> Aabb {
         self.bbox
     }
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut crate::hittable::HitRecord) -> bool {
@@ -20,7 +20,7 @@ impl Hittable for BVHNode {
         let hit_left = self.left.hit(r, ray_t, rec);
         let hit_right = self.right.hit(r, Interval::new(ray_t.min, if hit_left {rec.t} else {ray_t.max}), rec);
 
-        return hit_left || hit_right
+        hit_left || hit_right
     }
 }
 
@@ -29,8 +29,8 @@ impl BVHNode {
         BVHNode::from_slice(&list.objects, 0, list.objects.len())
     }
 
-    pub fn from_slice(src_objects: &Vec<Rc<dyn Hittable>>, start: usize, end: usize) -> Self {
-        let mut objects = src_objects.clone();
+    pub fn from_slice(src_objects: &[Rc<dyn Hittable>], start: usize, end: usize) -> Self {
+        let mut objects = src_objects.to_owned();
         let left : Rc<dyn Hittable>;
         let right: Rc<dyn Hittable>;
 
@@ -70,9 +70,9 @@ impl BVHNode {
         
 
         BVHNode{
-            bbox:AABB::from_boxes(left.bounding_box(), right.bounding_box()),
-            left:left,
-            right:right,
+            bbox:Aabb::from_boxes(left.bounding_box(), right.bounding_box()),
+            left,
+            right,
         }
     }
 

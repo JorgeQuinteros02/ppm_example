@@ -1,26 +1,26 @@
 use crate::utility::{ray::Ray, interval::Interval};
 use std::rc::Rc;
-use super::{Hittable, HitRecord, aabb::AABB};
+use super::{Hittable, HitRecord, aabb::Aabb};
 
 
 
 #[derive(Default)]
 pub struct HittableList {
     pub objects: Vec<Rc<dyn Hittable>>,
-    bbox: AABB,
+    bbox: Aabb,
 }
 
 impl HittableList {
     pub fn new(object: Rc<dyn Hittable>) -> Self {
         HittableList{
             objects: vec![object],
-            bbox: AABB::default(),
+            bbox: Aabb::default(),
         }
     }
 
     pub fn add(&mut self, object: Rc<dyn Hittable>) {
         self.objects.push(object.clone());
-        self.bbox = AABB::from_boxes(self.bbox, object.bounding_box());
+        self.bbox = Aabb::from_boxes(self.bbox, object.bounding_box());
     }
 }
 
@@ -38,10 +38,10 @@ impl Hittable for HittableList {
             }
         }
 
-        return hit_anything;
+        hit_anything
     }
 
-    fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> Aabb {
         self.bbox
     }
 }

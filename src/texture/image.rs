@@ -20,7 +20,7 @@ impl ImageTexture {
 impl Texture for ImageTexture {
     fn value(&self, u:f64, v:f64, _p:Vec3) -> Color {
         // If we have no texture data, then return solid cyan as a debugging aid.
-        if self.image.height() <= 0 {return Color::new(0.0, 1.1, 1.1)}
+        if self.image.height() == 0 {return Color::new(0.0, 1.1, 1.1)}
 
         // Clamp input texture coordinates to [0,1] x [1,0]
         

@@ -93,6 +93,7 @@ impl Camera {
 
     }
 
+
     fn ray_color (&self, r: &Ray, depth:i32, world:&impl Hittable) -> Color {
         let mut rec = HitRecord::default();
         

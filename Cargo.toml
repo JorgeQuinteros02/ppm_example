@@ -16,4 +16,5 @@ indicatif = "0"
 vector3d = "0"
 rand = "0"
 image = "0"
+rayon = "1"
 

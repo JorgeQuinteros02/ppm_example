@@ -28,5 +28,5 @@ pub fn write_color (pixel_color: Color, samples_per_pixel:i32) {
 }
 
 pub fn linear_to_gamma(linear_component:f64) -> f64 {
-    return linear_component.sqrt()
+    linear_component.sqrt()
 }

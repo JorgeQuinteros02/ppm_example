@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::{material::{Mat, Material}, utility::{interval::Interval, ray::Ray, vec3::{self, Vec3}}};
 
-use super::{aabb::AABB, hittable_list::HittableList, HitRecord, Hittable};
+use super::{aabb::Aabb, hittable_list::HittableList, HitRecord, Hittable};
 
 
 pub struct Quad {
@@ -10,7 +10,7 @@ pub struct Quad {
     u:Vec3,
     v:Vec3,
     mat:Mat,
-    bbox:AABB,
+    bbox:Aabb,
     normal:Vec3,
     d:f64,
     w:Vec3,
@@ -22,30 +22,30 @@ impl Quad {
         let normal = vec3::unit_vector(n);
         let d = normal.dot(q);
         let w = n / n.norm2();
-        let mut q1 = Quad {q, u, v, mat, bbox:AABB::default(), normal, d, w};
+        let mut q1 = Quad {q, u, v, mat, bbox:Aabb::default(), normal, d, w};
         q1.set_bounding_box();
         q1
     }
 
     pub fn set_bounding_box(&mut self) {
-        self.bbox = AABB::from_points(self.q, self.q + self.u + self.v).pad();
+        self.bbox = Aabb::from_points(self.q, self.q + self.u + self.v).pad();
     }
 
     pub fn is_interior(a:f64, b:f64, rec:&mut HitRecord) -> bool {
         // Given the hit point in the plane coordinates, return false if it is outside the
         // primitive, otherwise set the hit record UV coordinates and return true.
 
-        if (a < 0.0) || (1.0 < a) || (b < 0.0) || (1.0 < b) {
+        if !(0.0..=1.0).contains(&a)|| !(0.0..=1.0).contains(&b) {
             return false
         }
         rec.u = a;
         rec.v = b;
-        return true
+        true
     }
 }
 
 impl Hittable for Quad {
-    fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> Aabb {
         self.bbox
     }
 

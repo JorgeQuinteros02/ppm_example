@@ -81,7 +81,7 @@ impl Hittable for ConstantMedium {
         true
     }
 
-    fn bounding_box(&self) -> super::aabb::AABB {
+    fn bounding_box(&self) -> super::aabb::Aabb {
         self.boundary.bounding_box()
     }
 }

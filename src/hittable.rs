@@ -9,14 +9,15 @@ pub mod rotate_y;
 pub mod constant_medium;
 
 use crate:: utility::{vec3::Vec3, ray::Ray, interval::Interval};
-use crate::material::Mat;
-use aabb::AABB;
+use crate::material::Material;
+use aabb::Aabb;
+use std::rc::Rc;
 
 #[derive(Default, Clone)]
 pub struct HitRecord {
     pub p: Vec3,
     pub normal: Vec3,
-    mat: Option<Mat>,
+    mat: Option<Rc<dyn Material>>,
     pub t: f64,
     pub front_face: bool,
     pub u: f64,
@@ -37,7 +38,7 @@ impl HitRecord {
         }
     }
 
-    pub fn mat(&self) -> Mat{
+    pub fn mat(&self) -> Rc<dyn Material>{
         self.mat.clone().unwrap()
     }
 }
@@ -46,5 +47,5 @@ impl HitRecord {
 
 pub trait Hittable {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
-    fn bounding_box(&self) -> AABB;
+    fn bounding_box(&self) -> Aabb;
 }

@@ -56,28 +56,30 @@ impl Hittable for RotateY {
         let mut origin = r.origin();
         let mut direction = r.direction();
 
-        origin[0] = self.cos_theta*origin[0] - self.sin_theta*origin[2];
-        origin[2] = self.sin_theta*origin[0] + self.cos_theta*origin[2];
+        origin[0] = self.cos_theta*r.origin()[0] - self.sin_theta*r.origin()[2];
+        origin[2] = self.sin_theta*r.origin()[0] + self.cos_theta*r.origin()[2];
 
-        direction[0] = self.cos_theta*direction[0] - self.sin_theta*direction[2];
-        direction[2] = self.sin_theta*direction[0] + self.cos_theta*direction[2];
+        direction[0] = self.cos_theta*r.direction()[0] - self.sin_theta*r.direction()[2];
+        direction[2] = self.sin_theta*r.direction()[0] + self.cos_theta*r.direction()[2];
 
         let rotated_r = Ray::new_timed(origin, direction, r.time());
 
         // Determine where (if any) intersection occurs in object space
-        if !self.object.hit(&rotated_r, ray_t, rec) {return false}
+        if !self.object.hit(&rotated_r, ray_t, rec) {
+            return false
+        }
 
         // Change the intersection point from object space to world space
         let mut p = rec.p;
 
-        p[0] =  self.cos_theta*p[0] + self.sin_theta*p[2];
-        p[2] = -self.sin_theta*p[0] + self.cos_theta*p[2];
+        p[0] =  self.cos_theta*rec.p[0] + self.sin_theta*rec.p[2];
+        p[2] = -self.sin_theta*rec.p[0] + self.cos_theta*rec.p[2];
 
         // Change the normal from object space to world space
         let mut normal = rec.normal;
 
-        normal[0] =  self.cos_theta*normal[0] + self.sin_theta*normal[2];
-        normal[2] = -self.sin_theta*normal[0] + self.cos_theta*normal[2];
+        normal[0] =  self.cos_theta*rec.normal[0] + self.sin_theta*rec.normal[2];
+        normal[2] = -self.sin_theta*rec.normal[0] + self.cos_theta*rec.normal[2];
 
         rec.p = p;
         rec.normal = normal;

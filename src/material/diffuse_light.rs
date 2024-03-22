@@ -9,6 +9,7 @@ pub struct DiffuseLight {
 }
 
 impl DiffuseLight {
+    #[allow(unused)]
     pub fn new(a:Rc<dyn Texture>) -> DiffuseLight{
         DiffuseLight {emit:a}
     }
@@ -19,11 +20,11 @@ impl DiffuseLight {
 }
 
 impl Material for DiffuseLight {
-    fn emitted(&self, u:f64, v:f64, p:&Vec3) -> Color {
-        self.emit.value(u, v, *p)
+    fn emitted(&self, u:f64, v:f64, p:Vec3) -> Color {
+        self.emit.value(u, v, p)
     }
 
-    fn scatter(&self, _r_in:&Ray, _rec:&HitRecord, _attenuation:&mut Color, _scattered:&mut Ray) -> bool {
+    fn scatter(&self, _r_in:&Ray, _rec:&HitRecord, mut _attenuation: &mut Color, _scattered:&mut Ray) -> bool {
         false
     }
 }

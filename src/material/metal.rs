@@ -7,14 +7,14 @@ pub struct Metal {
 }
 
 impl Metal {
-    pub fn new(a:&Color, f:f64) -> Mat {
+    pub fn new(a:Color, f:f64) -> Mat {
         let fuzz = if f < 1.0 {f} else {1.0};
-        Rc::new(Metal { albedo:*a, fuzz })
+        Rc::new(Metal { albedo:a, fuzz })
     }
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in:&Ray, rec:&HitRecord, attenuation:&mut Color, scattered:&mut Ray) -> bool {
+    fn scatter(&self, r_in:&Ray, rec:&HitRecord, attenuation: &mut Color, scattered:&mut Ray) -> bool {
         let reflected = vec3::reflect(vec3::unit_vector(r_in.direction()), rec.normal);
         *scattered = Ray::new_timed(rec.p, reflected + vec3::random_unit_vector()*self.fuzz, r_in.time());
         *attenuation = self.albedo;

@@ -1,6 +1,5 @@
 use std::ops::Add;
 
-use super::vec3::Vec3;
 
 #[derive(Clone, Copy)]
 pub struct Interval {
@@ -45,8 +44,8 @@ impl Interval {
         self.max = b.min(self.max);
     }
 
-    const EMPTY: Interval = Interval{min:f64::INFINITY, max:f64::NEG_INFINITY};
-//    const UNIVERSE: Interval = Interval{min:f64::NEG_INFINITY, max:f64::INFINITY};
+    pub const EMPTY: Interval = Interval{min:f64::INFINITY, max:f64::NEG_INFINITY};
+    pub const UNIVERSE: Interval = Interval{min:f64::NEG_INFINITY, max:f64::INFINITY};
 }
 
 impl Default for Interval {

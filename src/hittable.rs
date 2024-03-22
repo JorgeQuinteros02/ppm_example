@@ -6,6 +6,7 @@ pub mod hittable_list;
 pub mod quad;
 pub mod translate;
 pub mod rotate_y;
+pub mod constant_medium;
 
 use crate:: utility::{vec3::Vec3, ray::Ray, interval::Interval};
 use crate::material::Mat;

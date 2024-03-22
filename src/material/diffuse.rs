@@ -7,9 +7,9 @@ pub struct Lambertian {
 }
 
 impl Lambertian {
-    pub fn new(a: &Color) -> Mat {
+    pub fn new(a: Color) -> Mat {
         Rc::new(Lambertian {
-            albedo:Rc::new(SolidColor::new(*a))
+            albedo:Rc::new(SolidColor::new(a))
         })
     }
 
@@ -21,7 +21,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, r_in:&Ray, rec:&HitRecord, attenuation:&mut Color, scattered:&mut Ray) -> bool {
+    fn scatter(&self, r_in:&Ray, rec:&HitRecord,  attenuation: &mut Color, scattered:&mut Ray) -> bool {
         let mut scatter_direction = rec.normal + vec3::random_unit_vector();
         
         // Catch degenerate scatter direction

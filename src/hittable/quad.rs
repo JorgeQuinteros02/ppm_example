@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{sync::Arc};
 
 use crate::{material::{Mat, Material}, utility::{interval::Interval, ray::Ray, vec3::{self, Vec3}}};
 
@@ -80,7 +80,7 @@ impl Hittable for Quad {
 
 }
 
-pub fn _box(a:Vec3, b:Vec3, mat:Rc<dyn Material>) -> Rc<HittableList> {
+pub fn _box(a:Vec3, b:Vec3, mat:Arc<dyn Material>) -> Arc<HittableList> {
     // Returns the 3D box (six sides) that contains the two opposite vertices a & b.
 
     let mut sides = HittableList::default();
@@ -93,12 +93,12 @@ pub fn _box(a:Vec3, b:Vec3, mat:Rc<dyn Material>) -> Rc<HittableList> {
     let dy = Vec3::new(0.0, max.y - min.y, 0.0);
     let dz = Vec3::new(0.0, 0.0, max.z - min.z);
 
-    sides.add(Rc::new(Quad::new(Vec3::new(min.x, min.y, max.z),  dx,  dy, mat.clone())));
-    sides.add(Rc::new(Quad::new(Vec3::new(max.x, min.y, max.z), -dz,  dy, mat.clone())));
-    sides.add(Rc::new(Quad::new(Vec3::new(max.x, min.y, min.z), -dx,  dy, mat.clone())));
-    sides.add(Rc::new(Quad::new(Vec3::new(min.x, min.y, min.z),  dz,  dy, mat.clone())));
-    sides.add(Rc::new(Quad::new(Vec3::new(min.x, max.y, max.z),  dx, -dz, mat.clone())));
-    sides.add(Rc::new(Quad::new(Vec3::new(min.x, min.y, min.z),  dx,  dz, mat)));
+    sides.add(Arc::new(Quad::new(Vec3::new(min.x, min.y, max.z),  dx,  dy, mat.clone())));
+    sides.add(Arc::new(Quad::new(Vec3::new(max.x, min.y, max.z), -dz,  dy, mat.clone())));
+    sides.add(Arc::new(Quad::new(Vec3::new(max.x, min.y, min.z), -dx,  dy, mat.clone())));
+    sides.add(Arc::new(Quad::new(Vec3::new(min.x, min.y, min.z),  dz,  dy, mat.clone())));
+    sides.add(Arc::new(Quad::new(Vec3::new(min.x, max.y, max.z),  dx, -dz, mat.clone())));
+    sides.add(Arc::new(Quad::new(Vec3::new(min.x, min.y, min.z),  dx,  dz, mat)));
 
-    Rc::new(sides)
+    Arc::new(sides)
 }

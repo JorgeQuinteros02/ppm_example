@@ -1,21 +1,21 @@
-use std::rc::Rc;
+use std::{sync::Arc};
 
 use crate::{hittable::HitRecord, texture::{solid_color::SolidColor, Texture}, utility::{color::Color, ray::Ray, vec3::Vec3}};
 
 use super::Material;
 
 pub struct DiffuseLight {
-    emit:Rc<dyn Texture>
+    emit:Arc<dyn Texture>
 }
 
 impl DiffuseLight {
     #[allow(unused)]
-    pub fn new(a:Rc<dyn Texture>) -> DiffuseLight{
+    pub fn new(a:Arc<dyn Texture>) -> DiffuseLight{
         DiffuseLight {emit:a}
     }
 
     pub fn from_color(c: Color) -> DiffuseLight {
-        DiffuseLight{emit:Rc::new(SolidColor::new(c))}
+        DiffuseLight{emit:Arc::new(SolidColor::new(c))}
     }
 }
 

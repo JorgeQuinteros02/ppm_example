@@ -1,18 +1,18 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::utility::{interval::Interval, ray::Ray, vec3::Vec3};
 
 use super::{aabb::Aabb, HitRecord, Hittable};
 
 pub struct RotateY {
-    object: Rc<dyn Hittable>,
+    object: Arc<dyn Hittable>,
     sin_theta: f64,
     cos_theta: f64,
     bbox:Aabb
 }
 
 impl RotateY {
-    pub fn new(p:Rc<dyn Hittable>, angle:f64) -> RotateY {
+    pub fn new(p:Arc<dyn Hittable>, angle:f64) -> RotateY {
         let object = p;
         let radians = angle.to_radians();
         let sin_theta = radians.sin();

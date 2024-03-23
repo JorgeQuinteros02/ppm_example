@@ -1,21 +1,21 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::{texture::{solid_color::SolidColor, Texture}, utility::{color::Color, ray::Ray, vec3}};
 
 use super::Material;
 
 pub struct Isotropic {
-    albedo: Rc<dyn Texture>,
+    albedo: Arc<dyn Texture>,
 }
 
 impl Isotropic {
     #[allow(unused)]
-    pub fn new(albedo: Rc<dyn Texture>) -> Self {
+    pub fn new(albedo: Arc<dyn Texture>) -> Self {
         Isotropic{albedo}
     }
 
     pub fn from_color(c: Color) -> Self{
-        Isotropic{albedo:Rc::new(SolidColor::new(c))}
+        Isotropic{albedo:Arc::new(SolidColor::new(c))}
     }
 }
 

@@ -1,17 +1,17 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use crate::utility::{ray::Ray, vec3::Vec3};
 
 use super::{aabb::Aabb, Hittable};
 
 pub struct Translate {
-    object: Rc<dyn Hittable>,
+    object: Arc<dyn Hittable>,
     offset: Vec3,
     bbox: Aabb
 }
 
 impl Translate {
-    pub fn new(p: Rc<dyn Hittable>, displacement:Vec3) -> Self{
+    pub fn new(p: Arc<dyn Hittable>, displacement:Vec3) -> Self{
         Translate{
             object:p.clone(),
             offset:displacement,

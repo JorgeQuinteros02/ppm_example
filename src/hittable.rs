@@ -11,13 +11,13 @@ pub mod constant_medium;
 use crate:: utility::{vec3::Vec3, ray::Ray, interval::Interval};
 use crate::material::Material;
 use aabb::Aabb;
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Default, Clone)]
 pub struct HitRecord {
     pub p: Vec3,
     pub normal: Vec3,
-    mat: Option<Rc<dyn Material>>,
+    mat: Option<Arc<dyn Material>>,
     pub t: f64,
     pub front_face: bool,
     pub u: f64,
@@ -38,14 +38,14 @@ impl HitRecord {
         }
     }
 
-    pub fn mat(&self) -> Rc<dyn Material>{
+    pub fn mat(&self) -> Arc<dyn Material>{
         self.mat.clone().unwrap()
     }
 }
 
 
 
-pub trait Hittable {
+pub trait Hittable: Sync + Send{
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
     fn bounding_box(&self) -> Aabb;
 }

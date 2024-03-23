@@ -1,15 +1,15 @@
 use crate::utility::{color::Color, vec3::Vec3};
 use super::{Texture, solid_color::SolidColor};
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct Checkered {
     inv_scale: f64,
-    even: Rc<dyn Texture>,
-    odd: Rc<dyn Texture>,
+    even: Arc<dyn Texture>,
+    odd: Arc<dyn Texture>,
 }
 
 impl Checkered {
-/*     pub fn new(scale: f64, even: Rc<dyn Texture>, odd: Rc<dyn Texture>) -> Self {
+/*     pub fn new(scale: f64, even: Arc<dyn Texture>, odd: Arc<dyn Texture>) -> Self {
         Checkered {
             inv_scale: 1.0 / scale,
             even,
@@ -20,8 +20,8 @@ impl Checkered {
     pub fn from_colors(scale:f64, c1:Color, c2:Color) -> Self {
         Checkered {
             inv_scale:scale,
-            even:Rc::new(SolidColor::new(c1)),
-            odd:Rc::new(SolidColor::new(c2)),
+            even:Arc::new(SolidColor::new(c1)),
+            odd:Arc::new(SolidColor::new(c2)),
         }
     }
 }

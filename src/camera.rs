@@ -8,6 +8,7 @@ use crate::utility::{
 };
 use crate::hittable::*;
 use indicatif::ProgressBar;
+use rayon::prelude::*;
 
 pub struct Camera {
     pub aspect_ratio:f64,
@@ -34,26 +35,55 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn render(&mut self, world:&impl Hittable) {
+    pub fn render(&mut self, world:&(impl Hittable + Sync)) {
         self.initialize();
 
         println!("P3"); // The colors are in ASCII
         println!("{} {}", self.image_width, self.image_height); // specifying number of columns and rows
         println!("255");
 
-        let bar = ProgressBar::new(self.image_height as u64 - 1);
-        for j in 0..self.image_height {
-            for i in 0..self.image_width {
-                let mut pixel_color = Vec3::new(0.0, 0.0, 0.0);
-                for _sample in 0..self.samples_per_pixel {
-                    let r = self.get_ray(i,j);
-                    pixel_color = pixel_color + self.ray_color(&r, self.max_depth, world);
-                }
-                color::write_color(pixel_color, self.samples_per_pixel)
+        let pixel_number = (self.image_height * self.image_width);
+
+        let bar = ProgressBar::new((pixel_number) as u64);
+        let mut pixels: Vec<Color> = vec![Color::default()];
+
+        (0..pixel_number).into_par_iter().map(|n| -> Color{
+            let j = n / self.image_width;
+            let i = n - j * self.image_width;
+
+            let mut pixel_color = Vec3::new(0.0, 0.0, 0.0);
+            for _sample in 0..self.samples_per_pixel {
+                let r = self.get_ray(i,j);
+                pixel_color = pixel_color + self.ray_color(&r, self.max_depth, world);
             }
+
+            bar.inc(1);
+            pixel_color
+        }).collect_into_vec(&mut pixels);
+
+        let write_bar = ProgressBar::new(pixel_number as u64);
+        for c in pixels {
+            color::write_color(c, self.samples_per_pixel);
             bar.inc(1);
         }
-    }
+
+/*         for n in 0..(self.image_height * self.image_width) {
+
+            let j = n / self.image_width;
+            let i = n - j * self.image_width;
+            
+            let mut pixel_color = Vec3::new(0.0, 0.0, 0.0);
+            for _sample in 0..self.samples_per_pixel {
+                let r = self.get_ray(i,j);
+                pixel_color = pixel_color + self.ray_color(&r, self.max_depth, world);
+            }
+            
+            color::write_color(pixel_color, self.samples_per_pixel);
+
+
+            bar.inc(1);
+        }
+ */    }
 
     fn initialize(&mut self) {
         //Calculate image height and ensure it is at least 1.
@@ -94,7 +124,7 @@ impl Camera {
     }
 
 
-    fn ray_color (&self, r: &Ray, depth:i32, world:&impl Hittable) -> Color {
+    fn ray_color (&self, r: &Ray, depth:i32, world:&(impl Hittable + Sync)) -> Color {
         let mut rec = HitRecord::default();
         
         // If we've exceeded the ray bounce limit, no more light is gathered.
@@ -104,7 +134,6 @@ impl Camera {
         if !world.hit(r, Interval::new(0.001, INFINITY), &mut rec) {
             return self.background
         }
-        
         
         let mut scattered = Ray::default();
         let mut attenuation = Color::default();

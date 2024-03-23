@@ -1,11 +1,10 @@
-use std::cmp::Ordering;
-use std::rc::Rc;
+use std::{cmp::Ordering, sync::Arc};
 use crate::utility::{rand, ray::Ray, interval::Interval};
 use super::{Hittable, hittable_list::HittableList, aabb::Aabb};
 
 pub struct BVHNode {
-    left: Rc<dyn Hittable>,
-    right: Rc<dyn Hittable>,
+    left: Arc<dyn Hittable>,
+    right: Arc<dyn Hittable>,
     bbox: Aabb,
 }
 
@@ -29,14 +28,14 @@ impl BVHNode {
         BVHNode::from_slice(&list.objects, 0, list.objects.len())
     }
 
-    pub fn from_slice(src_objects: &[Rc<dyn Hittable>], start: usize, end: usize) -> Self {
+    pub fn from_slice(src_objects: &[Arc<dyn Hittable>], start: usize, end: usize) -> Self {
         let mut objects = src_objects.to_owned();
-        let left : Rc<dyn Hittable>;
-        let right: Rc<dyn Hittable>;
+        let left : Arc<dyn Hittable>;
+        let right: Arc<dyn Hittable>;
 
 
         let axis = rand::random_int_range(0,2) as usize;
-        let comparator = |a:&Rc<dyn Hittable>,b:&Rc<dyn Hittable>|{BVHNode::box_compare(a.clone(),b.clone(),axis)};
+        let comparator = |a:&Arc<dyn Hittable>,b:&Arc<dyn Hittable>|{BVHNode::box_compare(a.clone(),b.clone(),axis)};
 
         let object_span = end - start;
 
@@ -61,8 +60,8 @@ impl BVHNode {
                 objects.sort_by(comparator);
 
                 let mid = start + object_span / 2;
-                left = Rc::new(BVHNode::from_slice(&objects, start, mid));
-                right = Rc::new(BVHNode::from_slice(&objects, mid, end));
+                left = Arc::new(BVHNode::from_slice(&objects, start, mid));
+                right = Arc::new(BVHNode::from_slice(&objects, mid, end));
                 
             }
         }
@@ -76,7 +75,7 @@ impl BVHNode {
         }
     }
 
-    pub fn box_compare(a:Rc<dyn Hittable>, b:Rc<dyn Hittable>, axis_index:usize) -> Ordering{
+    pub fn box_compare(a:Arc<dyn Hittable>, b:Arc<dyn Hittable>, axis_index:usize) -> Ordering{
         a.bounding_box().axis(axis_index).min.partial_cmp(&b.bounding_box().axis(axis_index).min).unwrap()
     }
 }

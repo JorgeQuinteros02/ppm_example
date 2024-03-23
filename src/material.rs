@@ -7,11 +7,11 @@ pub mod isotropic;
 use crate::utility::vec3::Vec3;
 use crate::utility::{self, color::Color, ray::Ray}; // pass utility::self to children
 use crate::hittable::HitRecord;
-use std::rc::Rc;
+use std::sync::Arc;
 
 
 
-pub trait Material {
+pub trait Material: Sync + Send {
     fn scatter(&self, r_in:&Ray, rec:&HitRecord, attenuation: &mut Color, scattered:&mut Ray) -> bool;
 
     fn emitted(&self, _u:f64, _v:f64, _p:Vec3) -> Color {
@@ -19,7 +19,7 @@ pub trait Material {
     }
 }
 
-pub type Mat = Rc<dyn Material>;
+pub type Mat = Arc<dyn Material>;
 
 
 

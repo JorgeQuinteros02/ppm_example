@@ -1,19 +1,19 @@
 use super::{Material, HitRecord, utility::{vec3, ray::Ray, color::Color}};
 use crate::texture::{Texture, solid_color::SolidColor};
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct Lambertian {
-    albedo: Rc<dyn Texture>,
+    albedo: Arc<dyn Texture>,
 }
 
 impl Lambertian {
     pub fn new(a: Color) -> Self {
         Lambertian {
-            albedo:Rc::new(SolidColor::new(a))
+            albedo:Arc::new(SolidColor::new(a))
         }
     }
 
-    pub fn from_texture(a: Rc<dyn Texture>) -> Self {
+    pub fn from_texture(a: Arc<dyn Texture>) -> Self {
         Lambertian{
             albedo: a
         }
